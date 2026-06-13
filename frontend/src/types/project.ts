@@ -18,6 +18,7 @@ export interface Project {
   plannedEndDate: string;
   actualEndDate?: string | null;
   status: ProjectStatus;
+  delayReason?: string | null;
   progress: number;
   managerId: number;
   manager?: User;

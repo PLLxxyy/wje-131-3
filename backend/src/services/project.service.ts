@@ -3,7 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MaterialUsage } from '../models/materialUsage.entity';
 import { Project } from '../models/project.entity';
-import { ProjectStatus } from '../types/enums';
+import { SubTask } from '../models/subTask.entity';
+import { TaskPhase } from '../models/taskPhase.entity';
+import { PhaseStatus, ProjectStatus, TaskStatus } from '../types/enums';
 import { AuditService } from './audit.service';
 
 @Injectable()
@@ -11,6 +13,8 @@ export class ProjectService {
   constructor(
     @InjectRepository(Project) private readonly projectRepository: Repository<Project>,
     @InjectRepository(MaterialUsage) private readonly usageRepository: Repository<MaterialUsage>,
+    @InjectRepository(TaskPhase) private readonly phaseRepository: Repository<TaskPhase>,
+    @InjectRepository(SubTask) private readonly taskRepository: Repository<SubTask>,
     private readonly auditService: AuditService
   ) {}
 
@@ -52,6 +56,34 @@ export class ProjectService {
     const updated = await this.projectRepository.save(project);
     await this.auditService.record('project.archive', 'Project', id, actorId);
     return updated;
+  }
+
+  async delay(id: number, delayReason: string, actorId = 1) {
+    const project = await this.findOne(id);
+    project.status = ProjectStatus.Delayed;
+    project.delayReason = delayReason;
+    await this.projectRepository.save(project);
+
+    const phases = await this.phaseRepository.find({ where: { projectId: id } });
+    const blockedPhases: number[] = [];
+    for (const phase of phases) {
+      if (phase.status === PhaseStatus.InProgress) {
+        phase.status = PhaseStatus.Blocked;
+        await this.phaseRepository.save(phase);
+        blockedPhases.push(phase.id);
+        const tasks = await this.taskRepository.find({ where: { phaseId: phase.id } });
+        for (const task of tasks) {
+          if (task.status !== TaskStatus.Done) {
+            task.status = TaskStatus.Paused;
+            await this.taskRepository.save(task);
+          }
+        }
+      }
+    }
+
+    const result = await this.findOne(id);
+    await this.auditService.record('project.delay', 'Project', id, actorId, { delayReason, blockedPhases });
+    return result;
   }
 
   async dashboard() {

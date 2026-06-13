@@ -9,5 +9,7 @@ export const projectApi = {
   create: (payload: Partial<Project>) => postData<Project>(apiPaths.projects, payload),
   updateProgress: (id: number, progress: number, status?: ProjectStatus) =>
     patchData<Project>(`${apiPaths.projects}/${id}/progress`, { progress, status }),
-  archive: (id: number) => patchData<Project>(`${apiPaths.projects}/${id}/archive`)
+  archive: (id: number) => patchData<Project>(`${apiPaths.projects}/${id}/archive`),
+  delay: (id: number, delayReason: string) =>
+    patchData<Project>(`${apiPaths.projects}/${id}/delay`, { delayReason })
 };

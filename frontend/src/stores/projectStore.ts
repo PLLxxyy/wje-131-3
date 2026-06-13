@@ -10,6 +10,7 @@ interface ProjectState {
   loadProjects: () => Promise<void>;
   loadProject: (id: number) => Promise<void>;
   loadDashboard: () => Promise<void>;
+  delayProject: (id: number, delayReason: string) => Promise<void>;
 }
 
 export const useProjectStore = create<ProjectState>((set) => ({
@@ -28,5 +29,9 @@ export const useProjectStore = create<ProjectState>((set) => ({
   loadDashboard: async () => {
     const dashboard = await projectApi.dashboard();
     set({ dashboard });
+  },
+  delayProject: async (id, delayReason) => {
+    const current = await projectApi.delay(id, delayReason);
+    set({ current });
   }
 }));

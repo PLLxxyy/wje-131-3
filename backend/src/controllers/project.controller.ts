@@ -45,4 +45,14 @@ export class ProjectController {
   async archive(@Param('id') id: string, @Req() req: Request) {
     return ok(await this.projectService.archive(Number(id), req.user?.id), '项目已归档');
   }
+
+  @Patch(':id/delay')
+  @UseGuards(rbacMiddleware([UserRole.Admin, UserRole.ProjectManager]))
+  async delay(
+    @Param('id') id: string,
+    @Body() body: { delayReason: string },
+    @Req() req: Request
+  ) {
+    return ok(await this.projectService.delay(Number(id), body.delayReason, req.user?.id), '项目已标记延期');
+  }
 }

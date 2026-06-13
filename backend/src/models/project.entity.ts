@@ -30,6 +30,9 @@ export class Project {
   @Column({ type: 'enum', enum: ProjectStatus, default: ProjectStatus.Planning })
   status: ProjectStatus;
 
+  @Column({ type: 'text', nullable: true })
+  delayReason?: string | null;
+
   @Column({ default: 0 })
   progress: number;
 

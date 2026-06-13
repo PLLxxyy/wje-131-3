@@ -9,7 +9,7 @@ import { useTaskStore } from '../stores/taskStore';
 import { TaskStatus } from '../types';
 import { formatDuration } from '../utils/formatDuration';
 
-const columns = [TaskStatus.Todo, TaskStatus.InProgress, TaskStatus.Review, TaskStatus.Done];
+const columns = [TaskStatus.Todo, TaskStatus.InProgress, TaskStatus.Review, TaskStatus.Done, TaskStatus.Paused];
 
 export function TaskBoard() {
   const id = Number(useParams().id || 1);

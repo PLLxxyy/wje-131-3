@@ -17,7 +17,8 @@ export enum TaskStatus {
   Todo = 'Todo',
   InProgress = 'InProgress',
   Review = 'Review',
-  Done = 'Done'
+  Done = 'Done',
+  Paused = 'Paused'
 }
 
 export enum Priority {

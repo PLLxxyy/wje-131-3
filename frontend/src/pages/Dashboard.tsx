@@ -5,7 +5,7 @@ import { EmptyState } from '../components/common/EmptyState';
 import { ProgressBar } from '../components/common/ProgressBar';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { useProjectStore } from '../stores/projectStore';
-import { ProjectStatus } from '../types';
+import { PhaseStatus, ProjectStatus } from '../types';
 import { formatDate } from '../utils/formatDate';
 
 export function Dashboard() {
@@ -73,16 +73,43 @@ export function Dashboard() {
             {delayed.length ? (
               <List
                 dataSource={delayed}
-                renderItem={(project) => (
-                  <List.Item>
-                    <Alert
-                      type="error"
-                      showIcon
-                      message={project.name}
-                      description={`${project.address} · 计划 ${formatDate(project.plannedEndDate)} 竣工`}
-                    />
-                  </List.Item>
-                )}
+                renderItem={(project) => {
+                  const blockedPhases = project.phases?.filter((p) => p.status === PhaseStatus.Blocked) || [];
+                  return (
+                    <List.Item>
+                      <Alert
+                        type="error"
+                        showIcon
+                        style={{ width: '100%' }}
+                        message={
+                          <Space>
+                            <Link to={`/projects/${project.id}/gantt`}>{project.name}</Link>
+                            <StatusBadge value={project.status} />
+                          </Space>
+                        }
+                        description={
+                          <Space direction="vertical" size={4} style={{ width: '100%', marginTop: 6 }}>
+                            <Typography.Text type="secondary">
+                              {project.address} · 计划 {formatDate(project.plannedEndDate)} 竣工
+                            </Typography.Text>
+                            {project.delayReason && (
+                              <Typography.Text>
+                                <strong>原因：</strong>
+                                {project.delayReason}
+                              </Typography.Text>
+                            )}
+                            {blockedPhases.length > 0 && (
+                              <Typography.Text type="secondary">
+                                <strong>受阻阶段：</strong>
+                                {blockedPhases.map((p) => p.name).join('、')}
+                              </Typography.Text>
+                            )}
+                          </Space>
+                        }
+                      />
+                    </List.Item>
+                  );
+                }}
               />
             ) : (
               <EmptyState description="暂无延期项目" />
