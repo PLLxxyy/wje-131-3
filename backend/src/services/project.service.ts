@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MaterialUsage } from '../models/materialUsage.entity';
@@ -59,6 +59,9 @@ export class ProjectService {
   }
 
   async delay(id: number, delayReason: string, actorId = 1) {
+    if (!delayReason || !delayReason.trim()) {
+      throw new BadRequestException('延期原因不能为空');
+    }
     const project = await this.findOne(id);
     project.status = ProjectStatus.Delayed;
     project.delayReason = delayReason;

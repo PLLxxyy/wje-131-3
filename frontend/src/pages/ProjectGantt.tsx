@@ -139,7 +139,7 @@ export function ProjectGantt() {
         onCancel={() => setDelayModalOpen(false)}
         confirmLoading={submitting}
         okText="确认延期"
-        okButtonProps={{ danger: true }}
+        okButtonProps={{ danger: true, disabled: !delayReason.trim() }}
       >
         <Space direction="vertical" size={16} style={{ width: '100%' }}>
           <Alert
@@ -154,7 +154,10 @@ export function ProjectGantt() {
             }
           />
           <div>
-            <Typography.Text strong>延期原因</Typography.Text>
+            <Typography.Text strong>
+              <span style={{ color: '#ff4d4f', marginRight: 4 }}>*</span>
+              延期原因
+            </Typography.Text>
             <Input.TextArea
               value={delayReason}
               onChange={(e) => setDelayReason(e.target.value)}
@@ -162,7 +165,13 @@ export function ProjectGantt() {
               rows={4}
               maxLength={500}
               showCount
+              status={!delayReason.trim() && delayReason.length > 0 ? 'error' : ''}
             />
+            {!delayReason.trim() && delayReason.length > 0 && (
+              <Typography.Text type="danger" style={{ fontSize: 12 }}>
+                延期原因不能为空
+              </Typography.Text>
+            )}
           </div>
         </Space>
       </Modal>
